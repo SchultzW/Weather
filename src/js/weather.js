@@ -2,19 +2,57 @@ import './general';
 
 //http://api.openweathermap.org/data/2.5/forecast?zip=97405&units=imperial&appid=c59493e7a8643f49446baf0d5ed9d646
 
+class Weather
+{
+  constructor()
+  {
+    this.state = {
+      zipcode: "",
+      city: {}, 
+      forecast: [], 
+      simpleForecast: [], 
+      selectedDate: null
+    };
+    this.url = "http://api.openweathermap.org/data/2.5/forecast?zip=";
+    this.apikey = "&units=imperial&appid=63b4f10e19ed97e00432442f700ab81c";
+    this.form=document.getElementById('zip-form');
+    this.zipInput=document.getElementById("zipcode");
+    this.weatherList=document.getElementById("weatherList");
+    this.currentDay=document.getElementById("currentDay");
+    this.onFormSubmit=this.onFormSubmit.bind(this);
+  }
+  onFormSubmit()
+  {
+    /*
+    Write the method onFormSubmit.  It should
+    - prevent the form from being sumbitted to the server
+    - get the zip code from the UI and put it in a variable
+    - call fetch with the url zipcode and apikey
+      - when the response comes back THEN parse the json
+      - when that finishes THEN 
+        - set the city in the state object
+        - set the forecast in the state object
+        - set the simpleForecast in the state object 
+            by calling the method parseForecast (see bottom of file)
+        - set the selectedDate to null
+        - clear the zipcode from the UI
+        - call the method renderWeatherList and pass this.state.simpleForecast as the arg
+    */
+  }
+}
 /* Create a class called Weather
 - Part 1 - Retrieve the weather information when the user clicks the buttobn
   - Create the constructor
-    - initialize instance variables for the "state" of the app and the ajax call
+    - initialize instance variables for the "state" of the app and the ajax call 
         this.state = {
           zipcode: "",
-          city: {},
-          forecast: [],
-          simpleForecast: [], 
+          city: {}, object name of city lat and long
+          forecast: [], array of raw data from ajax call
+          simpleForecast: [], less ugly forecast data
           selectedDate: null
         };
         this.url = "http://api.openweathermap.org/data/2.5/forecast?zip=";
-        this.apikey = "&units=imperial&appid=c59493e7a8643f49446baf0d5ed9d646";
+        this.apikey = "&units=imperial&appid=63b4f10e19ed97e00432442f700ab81c";
     - initialize instance variables for UI elements
         the form
         the zipcode input element
@@ -116,3 +154,5 @@ END OF PART 3 - TEST AND DEBUG YOUR APP
   }
 
 */
+let myWeather;
+window.onload(()=>(myWeather=new Weather));
