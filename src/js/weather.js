@@ -27,6 +27,8 @@ class Weather
     this.findMaxTemp=this.findMaxTemp.bind(this);
     this.findMinTemp=this.findMinTemp.bind(this);
     this.form.addEventListener('submit',this.onFormSubmit);
+    this.rednerCurrentDay=this.rednerCurrentDay.bind(this);
+    this.clearCurrentDay=this.clearCurrentDay.bind(this);
   }
   onFormSubmit(event)
   {
@@ -56,6 +58,7 @@ class Weather
       });
       
     })
+    clearCurrentDay();
     /*
     Write the method onFormSubmit.  It should
     - prevent the form from being sumbitted to the server
@@ -86,7 +89,15 @@ class Weather
       const itemsHTML = forecast.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
     - Set the inner html of the weatherList element on the page to 
       - a div element styled with weather-list flex-parent
-      - that contains the itemsHTML from above */
+      - that contains the itemsHTML from above 
+      
+      - Add a click event handler to each of the weather list items 
+    - add a loop to the end of the renderWeatherList method that adds the event handler
+    - you'll have to bind the method renderCurrentDay to both the class and the index of the item*/
+    for(let i=0;i<=forecastArray;i++)
+    {
+      document.getElementById("weatherlist")[i].addEventListener('click',rednerCurrentDay);
+    }
   }
   renderWeatherListItem(forecastDay,index)
   {
@@ -105,13 +116,26 @@ class Weather
       - Return the template literal  */
       return `<div class='flex-parent weather-list-item'>
               <label for='month' class="weather-list-item inline">month</label><label for='day' class='weather-list-item'>day</label>
-              <label for="high" class='weather-list-item'>${forecastDay(index).maxTemp}</label><label for="low"class='weather-list-item'>${forecastDay(index).minTemp}</label>
+              <label for="high" class='weather-list-item'>${forecastDay[index].maxTemp}</label><label for="low"class='weather-list-item'>${forecastDay(index).minTemp}</label>
               </div>`
    
   }
 
   rednerCurrentDay(index)
   {
+  
+    ` <div class='flexdown weather-list-item'>
+    <div> Weather in ${city}</div>
+    <div id='icon'><img id='wicon' src="http://openweathermap.org/img/w/${simpleForecast[i].icon}" alt="weatherIcon"> Todays Weather: ${simpleForecast(i).description}</div>
+    <div>Morning Temp: ${simpleForecast.morningTemp}/div>
+    <div>Afternoon Temp: ${simpleForecast.dayTemp}</div>
+    <div>Evening Temp: ${simpleForecast.eveningTemp}</div>
+    <div>Night Temp: ${simpleForecast.nightTemp}</div>
+
+    <div class="right">Atmospheric Pressure: pressure</div>
+    <div class="right">Humidity: humid</div>
+    <div class="right">Wind Speed: speedy</div>    
+   </div>`
     /*Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
     - Format the detailed weather information for the selected day on the html page. Include at least
       - identifying information for the city as well as the date
@@ -184,14 +208,19 @@ class Weather
       oneDay.eveningTemp = forecast[i + EVENING].main.temp;
       oneDay.nightTemp = forecast[i + NIGHT].main.temp;
       oneDay.description = forecast[i + NOON].weather[0].description;
-      oneDay.icon = 
-      oneDay.pressure = 
-      oneDay.wind = 
-      oneDay.humidity = 
+      oneDay.icon = forecast[i].weather[0].icon;
+      oneDay.pressure = forecast[i].main.pressure;
+      oneDay.wind = forecast[i].wind.speed;
+      oneDay.humidity = forecast[i].main.humidity;
       simpleForecast.push(oneDay);
     }
     return simpleForecast;
   }
+  clearCurrentDay()
+  {
+    document.getElementById("currentDay").innerHTML="";
+  }
+
 }
 /* Create a class called Weather
 - Part 1 - Retrieve the weather information when the user clicks the buttobn
@@ -263,6 +292,7 @@ END OF PART 2 - TEST AND DEBUG YOUR APP
       - Enclose the html in ``.
       - Replace the hardcoded text with data.  The data is in the state instance variable.
       - Set the innerhtml property of the currentDay element on the page
+      **********************************************************************************
   - Add a click event handler to each of the weather list items 
     - add a loop to the end of the renderWeatherList method that adds the event handler
     - you'll have to bind the method renderCurrentDay to both the class and the index of the item

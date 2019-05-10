@@ -103,8 +103,17 @@ body {
     display:inline-block;
   }
 
-  .nobull {
-    list-style-type: none;
+  .flexdown {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: center;
     }
+  .flexdown .right{
+    align-self:right;
+  }
+
+
+
 
 
