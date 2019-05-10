@@ -52,6 +52,7 @@ body {
   background-color: #fff;
   text-align: center;
   cursor: pointer;
+  direction:column;
 }
 
   .weather-list-item :first-child {
@@ -98,5 +99,12 @@ body {
   .weather img {
       vertical-align: middle;
   }
+  .lineup{
+    display:inline-block;
+  }
+
+  .nobull {
+    list-style-type: none;
+    }
 
 

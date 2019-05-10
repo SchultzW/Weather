@@ -13,16 +13,49 @@ class Weather
       simpleForecast: [], 
       selectedDate: null
     };
+    this.googleApi='AIzaSyAUVVZtkjKEpv2CP4VPahcqYpRZ8evgNL8';
+    this.googleUrl='https://maps.googleapis.com/maps/api/timezone/json?location='
     this.url = "http://api.openweathermap.org/data/2.5/forecast?zip=";
     this.apikey = "&units=imperial&appid=63b4f10e19ed97e00432442f700ab81c";
-    this.form=document.getElementById('zip-form');
+    this.form=document.getElementById('zipForm');
     this.zipInput=document.getElementById("zipcode");
     this.weatherList=document.getElementById("weatherList");
     this.currentDay=document.getElementById("currentDay");
     this.onFormSubmit=this.onFormSubmit.bind(this);
+    this.parseForecast=this.parseForecast.bind(this);
+    this.getIndexOfMidnight=this.getIndexOfMidnight.bind(this);
+    this.findMaxTemp=this.findMaxTemp.bind(this);
+    this.findMinTemp=this.findMinTemp.bind(this);
+    this.form.addEventListener('submit',this.onFormSubmit);
   }
-  onFormSubmit()
+  onFormSubmit(event)
   {
+    event.preventDefault();
+    let zip=document.getElementById('zipcode').value;
+    fetch(`${this.url}${zip}${this.apikey}`)
+    .then(response=>response.json())
+    .then(data=>{
+        
+        this.state.city=data.city,
+        this.state.forecast=data.list,
+        this.state.simpleForecast=data.simpleForecast
+        this.state.selectedDate=null;
+        //console.log(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestam=${this.state.forecast[0].dt}&key=${this.googleApi}`);
+        fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
+        .then(response=>response.json())
+        .then(tzdata=>{
+          console.log("timezone data:" +tzdata);
+          
+          this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
+          this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
+          this.zip.value="";
+          //call method that writes data to page
+          renderWeatherList(this.state.simpleForecast);
+        })
+        .catch(tzError=>{alert("There was a problem getting timezone info!");
+      });
+      
+    })
     /*
     Write the method onFormSubmit.  It should
     - prevent the form from being sumbitted to the server
@@ -38,6 +71,126 @@ class Weather
         - clear the zipcode from the UI
         - call the method renderWeatherList and pass this.state.simpleForecast as the arg
     */
+  }
+  /**- Write a first version of renderWeatherList.  It has forecast 
+   * (which is 5 element simplified forcast array) as a parameter.
+    - console.log the value of forecast.
+  - Edit the constructor to bind the class to the method renderWeatherList */
+  renderWeatherList(forecastArray)
+  {
+    console.log(forecastArray);
+    const itemsHTML = forecast.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
+    document.getElementById('weatherlist').innerHTML=innerHTML;
+    /*Edit the body of the method renderWeather list.  It should
+    - Create the html for each of the weather list items.  Use the array method map to do this.
+      const itemsHTML = forecast.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
+    - Set the inner html of the weatherList element on the page to 
+      - a div element styled with weather-list flex-parent
+      - that contains the itemsHTML from above */
+  }
+  renderWeatherListItem(forecastDay,index)
+  {
+    /** Write the method renderWeatherListItem
+    - This method returns a template literal containing the html for the weather for ONE day.
+      It gets called in renderWeatherList.  It has 2 parameters a forecastDay and an index.
+      The forecastDay is a js object from the "parsed" version of the return from the weather api.
+    - Format the weather information for one day on the html page.  At a minimum it should include
+      - the month and day as well as the weekday
+      - the high and low temperatures for that day
+      - the element should be styled with weather-list-item as well
+    - CUT the html for ONE day from your html page into the body of your method.
+      - Enclose the html in ``.
+      - Replace the hardcoded month and day, weekday, high and low temperatures 
+        with template strings that use the properties of the forecastDay object
+      - Return the template literal  */
+      return `<div class='flex-parent weather-list-item'>
+              <label for='month' class="weather-list-item inline">month</label><label for='day' class='weather-list-item'>day</label>
+              <label for="high" class='weather-list-item'>${forecastDay(index).maxTemp}</label><label for="low"class='weather-list-item'>${forecastDay(index).minTemp}</label>
+              </div>`
+   
+  }
+
+  rednerCurrentDay(index)
+  {
+    /*Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
+    - Format the detailed weather information for the selected day on the html page. Include at least
+      - identifying information for the city as well as the date
+      - description and icon for the weather
+      - temperatures throughout the day
+      - humidity and wind information
+    - CUT the html for the weather details and paste it into the body of your method
+      - Enclose the html in ``.
+      - Replace the hardcoded text with data.  The data is in the state instance variable.
+      - Set the innerhtml property of the currentDay element on the page
+  - Add a click event handler to each of the weather list items 
+    - add a loop to the end of the renderWeatherList method that adds the event handler
+    - you'll have to bind the method renderCurrentDay to both the class and the index of the item */
+  }
+
+
+
+
+
+
+
+  getIndexOfMidnight(firstDate, timezoneOffset) {
+    let dt = firstDate * 1000;
+    let date = new Date(dt);
+    let utcHours = date.getUTCHours();
+    let localHours = utcHours + timezoneOffset;
+    let firstMidnightIndex = (localHours > 2 ) ? 
+        Math.round((24 - localHours)/3) : 
+        Math.abs(Math.round(localHours / 3));
+    return firstMidnightIndex;
+  }
+
+  findMinTemp(forecast, indexOfMidnight) {
+    let min = forecast[indexOfMidnight].main.temp_min;
+    for (let i = indexOfMidnight + 1; i < indexOfMidnight + 8; i++)
+      if (forecast[i].main.temp_min < min)
+        min = forecast[i].main.temp_min;
+    return min;
+  }
+
+  findMaxTemp(forecast, indexOfMidnight) {
+    let max = forecast[indexOfMidnight].main.temp_max;
+    for (let i = indexOfMidnight + 1; i < indexOfMidnight + 8; i++)
+      if (forecast[i].main.temp_max > max)
+        max = forecast[i].main.temp_max;
+    return max;
+  }
+
+  parseForecast(forecast, timezoneOffset) {
+    let simpleForecast = new Array();
+    const MIDNIGHT = this.getIndexOfMidnight(forecast[0].dt, timezoneOffset);
+    const NOON = 4;
+    const SIXAM = 2;
+    const SIXPM = 6;
+    const NINEPM = 7;
+    const MORNING = SIXAM;
+    const DAY = NOON;
+    const EVENING = SIXPM;
+    const NIGHT = NINEPM;
+    const PERDAY = 8;
+    const DAYS = 4;
+    for (let i = MIDNIGHT; i < forecast.length - NINEPM; i+=PERDAY) {
+      let oneDay = new Object();
+      oneDay.dt = forecast[i + NOON].dt;
+      oneDay.temp = forecast[i + NOON].main.temp;
+      oneDay.minTemp = this.findMinTemp(forecast, i);
+      oneDay.maxTemp = this.findMaxTemp(forecast, i);
+      oneDay.morningTemp = forecast[i + MORNING].main.temp;
+      oneDay.dayTemp = forecast[i + DAY].main.temp;
+      oneDay.eveningTemp = forecast[i + EVENING].main.temp;
+      oneDay.nightTemp = forecast[i + NIGHT].main.temp;
+      oneDay.description = forecast[i + NOON].weather[0].description;
+      oneDay.icon = 
+      oneDay.pressure = 
+      oneDay.wind = 
+      oneDay.humidity = 
+      simpleForecast.push(oneDay);
+    }
+    return simpleForecast;
   }
 }
 /* Create a class called Weather
@@ -154,5 +307,8 @@ END OF PART 3 - TEST AND DEBUG YOUR APP
   }
 
 */
+
+//parsing functions
+ 
 let myWeather;
-window.onload(()=>(myWeather=new Weather));
+window.onload=()=>(myWeather=new Weather());
