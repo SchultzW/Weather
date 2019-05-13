@@ -44,19 +44,19 @@ class Weather
         this.state.selectedDate=null;
         //google stuff
         //console.log(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestam=${this.state.forecast[0].dt}&key=${this.googleApi}`);
-        //fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
-        //.then(response=>response.json())
-        //.then(tzdata=>{
-        //  console.log("timezone data:" +tzdata);
+        fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
+        .then(response=>response.json())
+        .then(tzdata=>{
+          console.log("timezone data:" +tzdata);
           
-        //  this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
-        //  this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
-        //  this.zip.value="";
+          this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
+          this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
+          this.zip.value="";
           //call method that writes data to page
-        //  renderWeatherList(this.state.simpleForecast);
-       // })
-        //.catch(tzError=>{alert("There was a problem getting timezone info!");
-      //});
+          renderWeatherList(this.state.simpleForecast);
+        })
+        .catch(tzError=>{alert("There was a problem getting timezone info!");
+      });
       
     })
     clearCurrentDay();
