@@ -42,20 +42,21 @@ class Weather
         this.state.forecast=data.list,
         this.state.simpleForecast=data.simpleForecast
         this.state.selectedDate=null;
+        //google stuff
         //console.log(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestam=${this.state.forecast[0].dt}&key=${this.googleApi}`);
-        fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
-        .then(response=>response.json())
-        .then(tzdata=>{
-          console.log("timezone data:" +tzdata);
+        //fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
+        //.then(response=>response.json())
+        //.then(tzdata=>{
+        //  console.log("timezone data:" +tzdata);
           
-          this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
-          this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
-          this.zip.value="";
+        //  this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
+        //  this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
+        //  this.zip.value="";
           //call method that writes data to page
-          renderWeatherList(this.state.simpleForecast);
-        })
-        .catch(tzError=>{alert("There was a problem getting timezone info!");
-      });
+        //  renderWeatherList(this.state.simpleForecast);
+       // })
+        //.catch(tzError=>{alert("There was a problem getting timezone info!");
+      //});
       
     })
     clearCurrentDay();
@@ -114,28 +115,32 @@ class Weather
       - Replace the hardcoded month and day, weekday, high and low temperatures 
         with template strings that use the properties of the forecastDay object
       - Return the template literal  */
-      return `<div class='flex-parent weather-list-item'>
-              <label for='month' class="weather-list-item inline">month</label><label for='day' class='weather-list-item'>day</label>
-              <label for="high" class='weather-list-item'>${forecastDay[index].maxTemp}</label><label for="low"class='weather-list-item'>${forecastDay(index).minTemp}</label>
-              </div>`
+      return ` <div class="weather-list-item" data-index="INDEX">
+      <h2> ${month}  / ${day} </h2>
+      <h3> WEEKDAY</h3>
+      <h3> ${simpleForecast.minTemp} &deg;F &#124; ${simpleForecast.maxTemp} &deg;F</h3>
+    </div>`;
    
   }
 
   rednerCurrentDay(index)
   {
   
-    ` <div class='flexdown weather-list-item'>
-    <div> Weather in ${city}</div>
-    <div id='icon'><img id='wicon' src="http://openweathermap.org/img/w/${simpleForecast[i].icon}" alt="weatherIcon"> Todays Weather: ${simpleForecast(i).description}</div>
-    <div>Morning Temp: ${simpleForecast.morningTemp}/div>
-    <div>Afternoon Temp: ${simpleForecast.dayTemp}</div>
-    <div>Evening Temp: ${simpleForecast.eveningTemp}</div>
-    <div>Night Temp: ${simpleForecast.nightTemp}</div>
-
-    <div class="right">Atmospheric Pressure: pressure</div>
-    <div class="right">Humidity: humid</div>
-    <div class="right">Wind Speed: speedy</div>    
-   </div>`
+    ` <div class="current-day">
+    <h1 class="day-header">WEEKDAY in ${simpleForecast.city}</h1>
+      <div class="weather">
+          <p><img src='http://openweathermap.org/img/w/ICON.png' alt=‘DESCRIPTION’/>
+              ${simpleForecast.description}
+          </p>
+      </div>
+      <div class="details flex-parent">
+        <div class="temperature-breakdown">
+              <p>Morning Temperature: ${simpleForecast.morningTemp} &deg;F</p>
+              <p>Day Temperature: ${simpleForecast.dayTemp} &deg;F</p>
+              <p>Evening Temperature: ${simpleForecast.eveningTemp} &deg;F</p>
+              <p>Night Temperature: ${simpleForecast.nightTemp} &deg;F</p>
+        </div>
+      </div>`
     /*Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
     - Format the detailed weather information for the selected day on the html page. Include at least
       - identifying information for the city as well as the date
