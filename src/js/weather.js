@@ -14,9 +14,9 @@ class Weather
       selectedDate: null
     };
     this.googleApi='AIzaSyAUVVZtkjKEpv2CP4VPahcqYpRZ8evgNL8';
-    this.googleUrl='https://maps.googleapis.com/maps/api/timezone/json?location='
+    this.googleMapsUrl='https://maps.googleapis.com/maps/api/timezone/json?location='
     this.url = "http://api.openweathermap.org/data/2.5/forecast?zip=";
-    this.apikey = "&units=imperial&appid=63b4f10e19ed97e00432442f700ab81c";
+    this.apikey = "&units=imperial&appid=dc441d2f72a30f6f0e1dab3a8b0df88f";
     this.form=document.getElementById('zipForm');
     this.zipInput=document.getElementById("zipcode");
     this.weatherList=document.getElementById("weatherList");
@@ -29,12 +29,16 @@ class Weather
     this.form.addEventListener('submit',this.onFormSubmit);
     this.rednerCurrentDay=this.rednerCurrentDay.bind(this);
     this.clearCurrentDay=this.clearCurrentDay.bind(this);
+    
   }
   onFormSubmit(event)
   {
     event.preventDefault();
-    let zip=document.getElementById('zipcode').value;
-    fetch(`${this.url}${zip}${this.apikey}`)
+    //this.state.zipcode=document.getElementById('zipcode').value;
+    let zip=document.getElementById('zipcode');
+    this.state.zipcode=zip.value;
+    /*
+    fetch(`${this.url}${this.state.zipcode}${this.apikey}`)
     .then(response=>response.json())
     .then(data=>{
         
@@ -53,13 +57,44 @@ class Weather
           this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
           this.zip.value="";
           //call method that writes data to page
-          renderWeatherList(this.state.simpleForecast);
+          this.renderWeatherList(this.state.simpleForecast);
         })
         .catch(tzError=>{alert("There was a problem getting timezone info!");
       });
       
-    })
-    clearCurrentDay();
+      })*/
+      
+      
+      fetch(`${this.url}${this.state.zipcode}${this.apikey}`)
+	    .then(response => response.json())
+        .then(data => { 
+            this.state.city = data.city,
+            this.state.forecast = data.list,
+            this.state.selectedDate = null;
+            fetch(`${this.googleMapsUrl}
+                ${this.state.city.coord.lat},${this.state.city.coord.lon}
+                &timestamp=${this.state.forecast[0].dt}
+                &key=${this.googleApi}`)
+                .then(response => response.json())
+                .then(tzdata => {
+                    console.log(tzdata);
+                    this.state.timezoneOffset =  (tzdata.rawOffset + tzdata.dstOffset) / (60 * 60);
+                    this.state.simpleForecast = this.parseForecast(this.state.forecast, this.state.timezoneOffset);
+                    zip.value = "";        
+                    this.renderWeatherList(this.state.simpleForecast);
+                    
+                })
+                .catch(tzError => {
+                    alert('There was a problem getting timezone info!')
+                });
+        })
+        .catch(error => {
+            alert('There was a problem getting info!'); 
+        });
+        
+      
+     
+    this.clearCurrentDay();
     /*
     Write the method onFormSubmit.  It should
     - prevent the form from being sumbitted to the server
@@ -190,6 +225,7 @@ class Weather
   }
 
   parseForecast(forecast, timezoneOffset) {
+    console.log('parsing');
     let simpleForecast = new Array();
     const MIDNIGHT = this.getIndexOfMidnight(forecast[0].dt, timezoneOffset);
     const NOON = 4;
