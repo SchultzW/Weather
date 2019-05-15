@@ -52,7 +52,8 @@ body {
   background-color: #fff;
   text-align: center;
   cursor: pointer;
-  direction:column;
+  width:150px;
+  flex-direction: row;
 }
 
   .weather-list-item :first-child {
@@ -98,22 +99,4 @@ body {
 
   .weather img {
       vertical-align: middle;
-  }
-  .lineup{
-    display:inline-block;
-  }
-
-  .flexdown {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: center;
-    }
-  .flexdown .right{
-    align-self:right;
-  }
-
-
-
-
-
+}

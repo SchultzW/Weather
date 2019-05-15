@@ -6,6 +6,7 @@ class Weather
 {
   constructor()
   {
+    
     this.state = {
       zipcode: "",
       city: {}, 
@@ -27,8 +28,9 @@ class Weather
     this.findMaxTemp=this.findMaxTemp.bind(this);
     this.findMinTemp=this.findMinTemp.bind(this);
     this.form.addEventListener('submit',this.onFormSubmit);
-    this.rednerCurrentDay=this.rednerCurrentDay.bind(this);
+    this.rednerCurrentDay=this.renderCurrentDay.bind(this);
     this.clearCurrentDay=this.clearCurrentDay.bind(this);
+
     
   }
   onFormSubmit(event)
@@ -36,35 +38,7 @@ class Weather
     event.preventDefault();
     //this.state.zipcode=document.getElementById('zipcode').value;
     let zip=document.getElementById('zipcode');
-    this.state.zipcode=zip.value;
-    /*
-    fetch(`${this.url}${this.state.zipcode}${this.apikey}`)
-    .then(response=>response.json())
-    .then(data=>{
-        
-        this.state.city=data.city,
-        this.state.forecast=data.list,
-        this.state.simpleForecast=data.simpleForecast
-        this.state.selectedDate=null;
-        //google stuff
-        //console.log(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestam=${this.state.forecast[0].dt}&key=${this.googleApi}`);
-        fetch(`${this.googleUrl}${this.state.city.coord.lat},${this.state.city.coord.lon}&timestamp=${this.state.forecast[0].dt}&key=${this.googleApi}`)
-        .then(response=>response.json())
-        .then(tzdata=>{
-          console.log("timezone data:" +tzdata);
-          
-          this.state.timezoneOffset=(tzdata.rawOffset+tzdata.dstOffset)/(60*60);
-          this.state.simpleForecast=this.parseForecast(this.state.forecase,this.state.timezoneOffset);
-          this.zip.value="";
-          //call method that writes data to page
-          this.renderWeatherList(this.state.simpleForecast);
-        })
-        .catch(tzError=>{alert("There was a problem getting timezone info!");
-      });
-      
-      })*/
-      
-      
+    this.state.zipcode=zip.value;    
       fetch(`${this.url}${this.state.zipcode}${this.apikey}`)
 	    .then(response => response.json())
         .then(data => { 
@@ -77,7 +51,7 @@ class Weather
                 &key=${this.googleApi}`)
                 .then(response => response.json())
                 .then(tzdata => {
-                    console.log(tzdata);
+                    //console.log(tzdata);
                     this.state.timezoneOffset =  (tzdata.rawOffset + tzdata.dstOffset) / (60 * 60);
                     this.state.simpleForecast = this.parseForecast(this.state.forecast, this.state.timezoneOffset);
                     zip.value = "";        
@@ -117,9 +91,9 @@ class Weather
   - Edit the constructor to bind the class to the method renderWeatherList */
   renderWeatherList(forecastArray)
   {
-    console.log(forecastArray);
-    const itemsHTML = forecast.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
-    document.getElementById('weatherlist').innerHTML=innerHTML;
+    
+    const itemsHTML = forecastArray.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
+    document.getElementById('weatherList').innerHTML=itemsHTML;
     /*Edit the body of the method renderWeather list.  It should
     - Create the html for each of the weather list items.  Use the array method map to do this.
       const itemsHTML = forecast.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
@@ -130,13 +104,14 @@ class Weather
       - Add a click event handler to each of the weather list items 
     - add a loop to the end of the renderWeatherList method that adds the event handler
     - you'll have to bind the method renderCurrentDay to both the class and the index of the item*/
-    for(let i=0;i<=forecastArray;i++)
+    for(let i=0;i<=forecastArray.length-1;i++)
     {
-      document.getElementById("weatherlist")[i].addEventListener('click',rednerCurrentDay);
+      document.getElementsByClassName("weather-list-item")[i].addEventListener('click',this.renderCurrentDay.bind(this,i));
     }
   }
   renderWeatherListItem(forecastDay,index)
   {
+    
     /** Write the method renderWeatherListItem
     - This method returns a template literal containing the html for the weather for ONE day.
       It gets called in renderWeatherList.  It has 2 parameters a forecastDay and an index.
@@ -150,32 +125,39 @@ class Weather
       - Replace the hardcoded month and day, weekday, high and low temperatures 
         with template strings that use the properties of the forecastDay object
       - Return the template literal  */
+      //this.date=new Date(forecastDay.dt);
+      //this.month=this.date.toString("MMM");
+      //this.day=this.date.toString("dddd");
+      //this.weekday=this.date.toString("dd");
       return ` <div class="weather-list-item" data-index="INDEX">
-      <h2> ${month}  / ${day} </h2>
+      <h2> Month  / Day </h2>
       <h3> WEEKDAY</h3>
-      <h3> ${simpleForecast.minTemp} &deg;F &#124; ${simpleForecast.maxTemp} &deg;F</h3>
+      <h3> ${forecastDay.minTemp} &deg;F &#124; ${forecastDay.maxTemp} &deg;F</h3>
     </div>`;
    
   }
 
-  rednerCurrentDay(index)
+  renderCurrentDay(index)
   {
   
-    ` <div class="current-day">
-    <h1 class="day-header">WEEKDAY in ${simpleForecast.city}</h1>
+    console.log('rendercurrentday');
+
+    let inhtml=` <div class="current-day">
+    <h1 class="day-header">WEEKDAY in ${this.state.simpleForecast.city}</h1>
       <div class="weather">
-          <p><img src='http://openweathermap.org/img/w/ICON.png' alt=‘DESCRIPTION’/>
-              ${simpleForecast.description}
+          <p><img src='http://openweathermap.org/img/w/${this.state.simpleForecast[index.icon]}.png' alt=‘DESCRIPTION’/>
+              ${this.state.simpleForecast[index].description}
           </p>
       </div>
       <div class="details flex-parent">
         <div class="temperature-breakdown">
-              <p>Morning Temperature: ${simpleForecast.morningTemp} &deg;F</p>
-              <p>Day Temperature: ${simpleForecast.dayTemp} &deg;F</p>
-              <p>Evening Temperature: ${simpleForecast.eveningTemp} &deg;F</p>
-              <p>Night Temperature: ${simpleForecast.nightTemp} &deg;F</p>
+              <p>Morning Temperature: ${this.state.simpleForecast[index].morningTemp} &deg;F</p>
+              <p>Day Temperature: ${this.state.simpleForecast[index].dayTemp} &deg;F</p>
+              <p>Evening Temperature: ${this.state.simpleForecast[index].eveningTemp} &deg;F</p>
+              <p>Night Temperature: ${this.state.simpleForecast[index].nightTemp} &deg;F</p>
         </div>
       </div>`
+      document.getElementById('currentDay').innerHTML=inhtml;
     /*Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
     - Format the detailed weather information for the selected day on the html page. Include at least
       - identifying information for the city as well as the date
@@ -185,7 +167,7 @@ class Weather
     - CUT the html for the weather details and paste it into the body of your method
       - Enclose the html in ``.
       - Replace the hardcoded text with data.  The data is in the state instance variable.
-      - Set the innerhtml property of the currentDay element on the page
+      -***** Set the innerhtml property of the currentDay element on the page
   - Add a click event handler to each of the weather list items 
     - add a loop to the end of the renderWeatherList method that adds the event handler
     - you'll have to bind the method renderCurrentDay to both the class and the index of the item */
@@ -225,7 +207,7 @@ class Weather
   }
 
   parseForecast(forecast, timezoneOffset) {
-    console.log('parsing');
+    //console.log('forecast'+forecast);
     let simpleForecast = new Array();
     const MIDNIGHT = this.getIndexOfMidnight(forecast[0].dt, timezoneOffset);
     const NOON = 4;
@@ -253,6 +235,7 @@ class Weather
       oneDay.pressure = forecast[i].main.pressure;
       oneDay.wind = forecast[i].wind.speed;
       oneDay.humidity = forecast[i].main.humidity;
+      
       simpleForecast.push(oneDay);
     }
     return simpleForecast;
