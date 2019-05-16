@@ -148,7 +148,7 @@ class Weather
     let myDate=new Date(this.state.forecast[0].dt*1000);
     let weekday=myDate.toLocaleDateString('en-us',{weekday:'long'});
     let inhtml=` <div class="current-day">
-    <h1 class="day-header">${weekday} in ${this.state.simpleForecast.city}</h1>
+    <h1 class="day-header">${weekday} in ${this.state.city.name}</h1>
       <div class="weather">
           <p><img src='http://openweathermap.org/img/w/${this.state.simpleForecast[index].icon}.png' alt=‘DESCRIPTION’/>
               ${this.state.simpleForecast[index].description}
