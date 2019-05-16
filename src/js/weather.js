@@ -125,15 +125,19 @@ class Weather
       - Replace the hardcoded month and day, weekday, high and low temperatures 
         with template strings that use the properties of the forecastDay object
       - Return the template literal  */
-      //this.date=new Date(forecastDay.dt);
-      //this.month=this.date.toString("MMM");
-      //this.day=this.date.toString("dddd");
-      //this.weekday=this.date.toString("dd");
+    
+      let myDate=new Date(forecastDay.dt*1000);
+      console.log('myDate:'+myDate);
+      let option={month:'long'};
+      let month=myDate.toLocaleDateString('en-us',option);
+      let day=myDate.toLocaleDateString('en-us',{day:'numeric'});
+      let weekday=myDate.toLocaleDateString('en-us',{weekday:'long'});
+
       return ` <div class="weather-list-item" data-index="INDEX">
-      <h2> Month  / Day </h2>
-      <h3> WEEKDAY</h3>
+      <h2> ${month} / ${day} </h2>
+      <h3> ${weekday}</h3>
       <h3> ${forecastDay.minTemp} &deg;F &#124; ${forecastDay.maxTemp} &deg;F</h3>
-    </div>`;
+      </div>`;
    
   }
 
@@ -141,11 +145,12 @@ class Weather
   {
   
     console.log('rendercurrentday');
-
+    let myDate=new Date(this.state.forecast[0].dt*1000);
+    let weekday=myDate.toLocaleDateString('en-us',{weekday:'long'});
     let inhtml=` <div class="current-day">
-    <h1 class="day-header">WEEKDAY in ${this.state.simpleForecast.city}</h1>
+    <h1 class="day-header">${weekday} in ${this.state.simpleForecast.city}</h1>
       <div class="weather">
-          <p><img src='http://openweathermap.org/img/w/${this.state.simpleForecast[index.icon]}.png' alt=‘DESCRIPTION’/>
+          <p><img src='http://openweathermap.org/img/w/${this.state.simpleForecast[index].icon}.png' alt=‘DESCRIPTION’/>
               ${this.state.simpleForecast[index].description}
           </p>
       </div>
